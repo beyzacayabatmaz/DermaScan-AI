@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS: Dinamik Tema (Light/Dark Mode) & Marka Kimliği
+# Custom CSS: Marka Kimliği (Dinamik Tema Desteği ile)
 st.markdown("""
 <style>
     /* Global Renk Değişkenleri */
@@ -186,7 +186,7 @@ def camera_preview(is_scanning=False):
     """
     components.html(html_code, height=360)
 
-# Session State
+# Session State Başlatma
 if 'step' not in st.session_state: st.session_state.step = 1
 if 'user' not in st.session_state: st.session_state.user = {}
 if 'cam_granted' not in st.session_state: st.session_state.cam_granted = False
@@ -219,7 +219,7 @@ if st.session_state.step == 1:
         st.session_state.step = 2
         st.rerun()
 
-# ADIM 2: KAMERA VE ANALİZ (Regl Döngüsü Zorunlu)
+# ADIM 2: KAMERA VE ANALİZ
 elif st.session_state.step == 2:
     if not st.session_state.cam_granted:
         st.markdown("<div class='clinical-card'><h4>Kamera Erişimi Gerekli</h4><p style='font-size: 14px;'>AI modelinin görsel analiz yapabilmesi için kamera erişimi gereklidir.</p></div>", unsafe_allow_html=True)
@@ -229,24 +229,17 @@ elif st.session_state.step == 2:
     else:
         st.markdown("<div class='clinical-card'>", unsafe_allow_html=True)
         
-        is_ready = True
+        # Kadınlar için Sadeleştirilmiş Regl Sorgusu
         if st.session_state.user['gender'] == "Kadın":
             st.markdown("<p style='font-weight:600; font-size:14px; margin-bottom:5px;'>Regl Döngüsü Analizi</p>", unsafe_allow_html=True)
             
-            # Gün seçimi (Zorunlu)
-            cycle_options = ["Seçiniz"] + [str(i) for i in range(1, 36)]
-            cycle_input = st.selectbox("Regl döngünüzü giriniz (Kaçıncı gündesiniz?)", cycle_options, index=0)
-            
-            # Dönem sorgusu
+            # Sadece Evet/Hayır sorusu kaldı
             on_period = st.radio("Şu an regl dönemi içerisinde misiniz?", ["Evet", "Hayır"], horizontal=True, index=1)
             st.session_state.user['on_period'] = (on_period == "Evet")
             
+            # Bilgilendirme metni
             st.markdown("<p style='font-size: 13px; color: #555; margin-top: 10px; margin-bottom: 15px;'>Hormonal sivilceler için regl döngüsü girmenizi istiyoruz.</p>", unsafe_allow_html=True)
             
-            if cycle_input == "Seçiniz":
-                is_ready = False
-            else:
-                st.session_state.user['cycle'] = int(cycle_input)
             st.markdown("<hr style='opacity: 0.1; margin: 15px 0;'>", unsafe_allow_html=True)
 
         st.markdown("<p style='text-align:center; font-weight:600; margin-bottom:10px;'>Canlı Optik Tarama Alanı</p>", unsafe_allow_html=True)
@@ -258,20 +251,16 @@ elif st.session_state.step == 2:
         camera_preview(is_scanning=st.session_state.scan_active)
         
         if not st.session_state.scan_active:
-            if not is_ready:
-                st.warning("Lütfen yukarıdaki regl döngüsü bilgisini giriniz.")
-                st.button("Analizi Başlat", disabled=True)
-            else:
-                if st.button("Analizi Başlat"):
-                    with st.spinner("AI Yüz Arıyor..."):
-                        time.sleep(1.5)
-                        face_verified = random.random() > 0.2
-                        if face_verified:
-                            st.session_state.scan_active = True
-                            st.rerun()
-                        else:
-                            st.session_state.error_msg = "❌ Yüz algılanamadı! Lütfen kameraya doğru bakınız."
-                            st.rerun()
+            if st.button("Analizi Başlat"):
+                with st.spinner("AI Yüz Arıyor..."):
+                    time.sleep(1.5)
+                    face_verified = random.random() > 0.2
+                    if face_verified:
+                        st.session_state.scan_active = True
+                        st.rerun()
+                    else:
+                        st.session_state.error_msg = "❌ Yüz algılanamadı! Lütfen kameraya doğru bakınız."
+                        st.rerun()
         else:
             status = st.empty()
             metrics = ["Bariyer Ölçümü", "Gözenek Haritalama", "Kızarıklık Tespiti", "Sebum Analizi"]
@@ -299,13 +288,13 @@ elif st.session_state.step == 2:
                 st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-# ADIM 3: SONUÇLAR VE MOBİL UYUMLU LİNKLER
+# ADIM 3: SONUÇLAR
 elif st.session_state.step == 3:
     u = st.session_state.user
     res = st.session_state.analysis_results
     st.markdown("<h3 style='text-align: center;'>Klinik Analiz Raporu</h3>", unsafe_allow_html=True)
     
-    # TR RESMİ SİTESİ CANONICAL LİNKLERİ (Mobil 404 Fix)
+    # TR RESMİ SİTESİ CANONICAL LİNKLERİ
     prods = {
         "niacinamide": {"t": "Intensive Pore Tightening Serum", "f": "Niacinamide %5 + Zinc PCA %1", "url": "gozenek-sikilastirici-ve-aydinlatici-serum-niacinamide-5-zinc-pca-1"},
         "hyaluronic": {"t": "Hyaluronic Acid %2 + B5", "f": "Intensive Hydration Serum", "url": "yogun-nemlendirici-bakim-serumu-hyaluronic-acid-2-b5"},
@@ -327,9 +316,6 @@ elif st.session_state.step == 3:
     elif u.get('on_period'):
         sel = prods['hyaluronic']
         msg = "Regl dönemindeki hormonal hassasiyet nedeniyle yatıştırıcı nem desteği eşleştirildi."
-    elif u.get('cycle', 0) > 20:
-        sel = prods['niacinamide']
-        msg = "Döngü evrenize bağlı hormonal sebum dengesizliği saptandı."
     else:
         sel = prods['arbutin']
         msg = "Cilt tonu aydınlatma ve bariyer koruma hedeflendi."
@@ -360,4 +346,4 @@ elif st.session_state.step == 3:
         reset()
 
 # FOOTER
-st.markdown("<div style='text-align: center; margin-top: 40px; padding: 20px; color: #AAA; font-size: 10px;'>© 2024 DermaScan AI | The Purest Solutions<br><b>v4.5 Dynamic Clinical Analytics</b></div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; margin-top: 40px; padding: 20px; color: #AAA; font-size: 10px;'>© 2024 DermaScan AI | The Purest Solutions<br><b>v4.6 Unified Clinical Analytics</b></div>", unsafe_allow_html=True)
