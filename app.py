@@ -229,11 +229,11 @@ elif st.session_state.step == 2:
     else:
         st.markdown("<div class='clinical-card'>", unsafe_allow_html=True)
         
-        # Kadınlar için Sadeleştirilmiş Regl Sorgusu
+        # Kadınlar için Sadeleştirilmiş Regl Sorgusu (SADECE EVET/HAYIR KALDI)
         if st.session_state.user['gender'] == "Kadın":
             st.markdown("<p style='font-weight:600; font-size:14px; margin-bottom:5px;'>Regl Döngüsü Analizi</p>", unsafe_allow_html=True)
             
-            # Sadece Evet/Hayır sorusu kaldı
+            # Sadece Evet/Hayır sorusu
             on_period = st.radio("Şu an regl dönemi içerisinde misiniz?", ["Evet", "Hayır"], horizontal=True, index=1)
             st.session_state.user['on_period'] = (on_period == "Evet")
             
@@ -288,20 +288,21 @@ elif st.session_state.step == 2:
                 st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-# ADIM 3: SONUÇLAR
+# ADIM 3: SONUÇLAR VE KESİN ÇÖZÜMLÜ (SEARCH) LİNKLER
 elif st.session_state.step == 3:
     u = st.session_state.user
     res = st.session_state.analysis_results
     st.markdown("<h3 style='text-align: center;'>Klinik Analiz Raporu</h3>", unsafe_allow_html=True)
     
-    # TR RESMİ SİTESİ CANONICAL LİNKLERİ
+    # 404 HATASINI SIFIRA İNDİREN "SEARCH" ALTYAPISI (.com UZANTISIYLA)
+    # Ürün url'leri asla değişmeyen arama sorgularına bağlandı.
     prods = {
-        "niacinamide": {"t": "Intensive Pore Tightening Serum", "f": "Niacinamide %5 + Zinc PCA %1", "url": "gozenek-sikilastirici-ve-aydinlatici-serum-niacinamide-5-zinc-pca-1"},
-        "hyaluronic": {"t": "Hyaluronic Acid %2 + B5", "f": "Intensive Hydration Serum", "url": "yogun-nemlendirici-bakim-serumu-hyaluronic-acid-2-b5"},
-        "arbutin": {"t": "Brightening Serum", "f": "Arbutin %2 + Hyaluronic Acid", "url": "cilt-tonu-aydinlatici-leke-karsiti-cilt-bakim-serumu-arbutin-2-hyaluronic-acid"},
-        "retinol": {"t": "Retinol Serum %0.5", "f": "Rejuvenating Retinol Serum", "url": "yaslanma-karsiti-yenileyici-retinol-serum-0-5-retinol-complex"},
-        "blemish": {"t": "Blemish Defense Serum", "f": "Oil Control Solution", "url": "sivilce-ve-siyah-nokta-karsiti-serum-blemish-defense-serum"},
-        "vitc": {"t": "Vitamin C Serum %10", "f": "Ethyl Ascorbic Acid", "url": "aydinlatici-leke-karsiti-serum-10-vitamin-c-0-5-ferulic-acid"}
+        "niacinamide": {"t": "Intensive Pore Tightening Serum", "f": "Niacinamide %5 + Zinc PCA %1", "url": "search?q=Niacinamide"},
+        "hyaluronic": {"t": "Hyaluronic Acid %2 + B5", "f": "Intensive Hydration Serum", "url": "search?q=Hyaluronic+Acid"},
+        "arbutin": {"t": "Brightening Serum", "f": "Arbutin %2 + Hyaluronic Acid", "url": "search?q=Arbutin"},
+        "retinol": {"t": "Retinol Serum %0.5", "f": "Rejuvenating Retinol Serum", "url": "search?q=Retinol"},
+        "blemish": {"t": "Blemish Defense Serum", "f": "Oil Control Solution", "url": "search?q=Blemish+Defense"},
+        "vitc": {"t": "Vitamin C Serum %10", "f": "Ethyl Ascorbic Acid", "url": "search?q=Vitamin+C"}
     }
 
     if res['redness'] and res['moisture'] < 40:
@@ -336,7 +337,7 @@ elif st.session_state.step == 3:
     <div style='background: white; color: #0047AB; padding: 25px; border-radius: 18px; margin-top: 20px; text-align: center;'>
         <p style='margin:0; font-weight: 800; font-size: 18px;'>{sel['t']}</p>
         <p style='margin:8px 0 20px 0; font-size: 12px; color: #666;'>{sel['f']}</p>
-        <a href='https://thepurestsolutions.com.tr/products/{sel['url']}' target='_blank' style='display: block; background: #0047AB; color: white !important; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px;'>Ürünü Keşfet →</a>
+        <a href='https://thepurestsolutions.com/{sel['url']}' target='_blank' style='display: block; background: #0047AB; color: white !important; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px;'>Ürünü Keşfet →</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -346,4 +347,4 @@ elif st.session_state.step == 3:
         reset()
 
 # FOOTER
-st.markdown("<div style='text-align: center; margin-top: 40px; padding: 20px; color: #AAA; font-size: 10px;'>© 2024 DermaScan AI | The Purest Solutions<br><b>v4.6 Unified Clinical Analytics</b></div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; margin-top: 40px; padding: 20px; color: #AAA; font-size: 10px;'>© 2024 DermaScan AI | The Purest Solutions<br><b>v4.7 Unified Clinical Analytics</b></div>", unsafe_allow_html=True)
